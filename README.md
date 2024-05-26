@@ -1,67 +1,104 @@
 # CodeAlpha_Network_Sniffer
-* sniff_arp.py
-  
-# #!/usr/bin/env python
-* The shebang line at the top of the script tells the operating system to use the Python interpreter to execute the script. env is used to locate the Python interpreter in the user's environment.
-# import scapy.all as scapy
-# from scapy.layers import http
-* This part imports necessary modules from scapy, a powerful Python library used for network packet manipulation and analysis. It also imports the http module * from scapy.layers to handle HTTP-specific packet layers.
+#### sniff_arp.py
 
-# def sniff(interface):
-#    scapy.sniff(iface=interface, store=False, prn=process_sniffed_packet)
-* iface=interface: Specifies the network interface to sniff on (e.g., wlan0 for a wireless interface).
-store=False: Tells scapy not to store the packets in memory.
-prn=process_sniffed_packet: Specifies the callback function process_sniffed_packet to be called for each captured packet.
 
-# def get_url(packet):
-#    return packet[http.HTTPRequest].Host + packet[http.HTTPRequest].Path
-* This function extracts the URL from an HTTP request packet.
-* packet[http.HTTPRequest].Host: Extracts the Host header (e.g., example.com).
-* packet[http.HTTPRequest].Path: Extracts the Path of the URL (e.g., /index.html).
+```python
+#!/usr/bin/env python
+```
 
-# def get_login_info(packet):
-#    if packet.haslayer(scapy.Raw):
-#        load = str(packet[scapy.Raw].load)
-#        keywords = ["username", "user", "password", "pass"]
-#        for keyword in keywords:
-#           if keyword in load:
-#                return load
+The shebang line at the top of the script tells the operating system to use the Python interpreter to execute the script. `env` is used to locate the Python interpreter in the user's environment.
 
-* This function attempts to find potential login information in the packet.
-* packet.haslayer(scapy.Raw): Checks if the packet has a Raw data layer.
-* load = str(packet[scapy.Raw].load): Converts the Raw data to a string.
-* keywords = ["username", "user", "password", "pass"]: List of keywords to search for in the packet data.
-The loop checks if any of the keywords are present in the load and returns the data if found.
+### Imports
 
-# def process_sniffed_packet(packet):
-#    if packet.haslayer(http.HTTPRequest):
-#        url = get_url(packet)
-#        print("[+] HTTP Request >> " + url.decode())
-#        login_info = get_login_info(packet)
-#        if login_info:
-#            print("\n\n[+] Possible username/password > " + login_info + "\n\n")
+```python
+import scapy.all as scapy
+from scapy.layers import http
+```
 
-* This function processes each packet captured by the sniffer.
-* if packet.haslayer(http.HTTPRequest): Checks if the packet is an HTTP request.
-* url = get_url(packet): Extracts the URL from the HTTP request.
-* print("[+] HTTP Request >> " + url.decode()): Prints the URL of the HTTP request.
-* login_info = get_login_info(packet): Tries to extract potential login information.
-* If login_info is found, it prints the possible username/password.
-# sniff("wlan0")
-* Calls the sniff function, specifying the network interface (wlan0 in this case) to start sniffing on.
-# Summary
-This script captures HTTP packets on the specified network interface and analyzes them to extract URLs and potential login information. It provides a basic demonstration of how to use scapy for network traffic analysis. Here are some key points:
+This part imports necessary modules from `scapy`, a powerful Python library used for network packet manipulation and analysis. It also imports the `http` module from `scapy.layers` to handle HTTP-specific packet layers.
 
-Importing Scapy and HTTP layers: scapy provides tools to capture and manipulate packets, and http is specifically for handling HTTP layers.
-Sniffing Function: Captures packets on a specified network interface and processes them using a callback function.
-URL Extraction: Extracts and prints the URL from HTTP request packets.
-Login Information Extraction: Searches for keywords related to login credentials in the packet data.
-Processing Packets: Checks if packets are HTTP requests, extracts relevant information, and prints it.
-#### To run this script, you would typically need root privileges because capturing packets directly from a network interface usually requires elevated permissions.
+### Sniff Function
 
-* sniff_extracting.py
+```python
+def sniff(interface):
+    scapy.sniff(iface=interface, store=False, prn=process_sniffed_packet)
+```
 
-### Shebang Line
+- `iface=interface`: Specifies the network interface to sniff on (e.g., `wlan0` for a wireless interface).
+- `store=False`: Tells `scapy` not to store the packets in memory.
+- `prn=process_sniffed_packet`: Specifies the callback function `process_sniffed_packet` to be called for each captured packet.
+
+### Get URL Function
+
+```python
+def get_url(packet):
+    return packet[http.HTTPRequest].Host + packet[http.HTTPRequest].Path
+```
+
+- This function extracts the URL from an HTTP request packet.
+- `packet[http.HTTPRequest].Host`: Extracts the Host header (e.g., `example.com`).
+- `packet[http.HTTPRequest].Path`: Extracts the Path of the URL (e.g., `/index.html`).
+
+### Get Login Info Function
+
+```python
+def get_login_info(packet):
+    if packet.haslayer(scapy.Raw):
+        load = str(packet[scapy.Raw].load)
+        keywords = ["username", "user", "password", "pass"]
+        for keyword in keywords:
+            if keyword in load:
+                return load
+```
+
+- This function attempts to find potential login information in the packet.
+- `packet.haslayer(scapy.Raw)`: Checks if the packet has a Raw data layer.
+- `load = str(packet[scapy.Raw].load)`: Converts the Raw data to a string.
+- `keywords = ["username", "user", "password", "pass"]`: List of keywords to search for in the packet data.
+- The loop checks if any of the keywords are present in the load and returns the data if found.
+
+### Process Sniffed Packet Function
+
+```python
+def process_sniffed_packet(packet):
+    if packet.haslayer(http.HTTPRequest):
+        url = get_url(packet)
+        print("[+] HTTP Request >> " + url.decode())
+        login_info = get_login_info(packet)
+        if login_info:
+            print("\n\n[+] Possible username/password > " + login_info + "\n\n")
+```
+
+- This function processes each packet captured by the sniffer.
+- `if packet.haslayer(http.HTTPRequest)`: Checks if the packet is an HTTP request.
+- `url = get_url(packet)`: Extracts the URL from the HTTP request.
+- `print("[+] HTTP Request >> " + url.decode())`: Prints the URL of the HTTP request.
+- `login_info = get_login_info(packet)`: Tries to extract potential login information.
+- If `login_info` is found, it prints the possible username/password.
+
+### Start Sniffing
+
+```python
+sniff("wlan0")
+```
+
+- Calls the `sniff` function, specifying the network interface (`wlan0` in this case) to start sniffing on.
+
+### Summary
+
+This script captures HTTP packets on the specified network interface and analyzes them to extract URLs and potential login information. It provides a basic demonstration of how to use `scapy` for network traffic analysis. Here are some key points:
+
+- **Importing Scapy and HTTP layers**: `scapy` provides tools to capture and manipulate packets, and `http` is specifically for handling HTTP layers.
+- **Sniffing Function**: Captures packets on a specified network interface and processes them using a callback function.
+- **URL Extraction**: Extracts and prints the URL from HTTP request packets.
+- **Login Information Extraction**: Searches for keywords related to login credentials in the packet data.
+- **Processing Packets**: Checks if packets are HTTP requests, extracts relevant information, and prints it.
+
+To run this script, you would typically need root privileges because capturing packets directly from a network interface usually requires elevated permissions.
+
+#### sniff_extracting.py
+
+
 
 ```python
 #!/usr/bin/env python
